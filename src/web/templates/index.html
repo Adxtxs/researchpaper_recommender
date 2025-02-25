@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+<!-- <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -87,4 +87,176 @@
         }
     </script>
 </body>
+</html> -->
+<!DOCTYPE html>
+<html lang="en" class="dark">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>IEEE Paper Recommender</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+      :root {
+        --base: #191724;
+        --surface: #1f1d2e;
+        --overlay: #26233a;
+        --muted: #6e6a86;
+        --subtle: #908caa;
+        --text: #e0def4;
+        --love: #eb6f92;
+        --gold: #f6c177;
+        --rose: #ebbcba;
+        --pine: #31748f;
+        --foam: #9ccfd8;
+        --iris: #c4a7e7;
+      }
+      body {
+        background: var(--base);
+        color: var(--text);
+        font-family: "Poppins", sans-serif;
+        display: flex;
+        flex-direction: column;
+        height: 100vh;
+        justify-content: space-between;
+        align-items: center;
+        padding: 2rem;
+      }
+      .container {
+        border-color: #ffe2facc;
+        background: var(--surface);
+        border-radius: 1rem;
+        width: 100%;
+        max-width: 00px;
+        padding: 2rem;
+        box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
+        transition: all 0.5s ease;
+      }
+      .container.expanded {
+        width: 100%;
+        padding: 2.5rem;
+      }
+      .search-container {
+        position: fixed;
+        bottom: 1rem;
+        width: 100%;
+        max-width: 800px;
+        display: flex;
+        justify-content: center;
+        gap: 0.5rem;
+        background: var(--overlay);
+        padding: 1rem;
+        border-radius: 1rem;
+        border-color: #ffe2facc;
+        border-width: 1px;
+      }
+      .search-container input {
+        background: var(--surface);
+        color: var(--text);
+        border: 1px solid var(--foam);
+        flex: 1;
+        padding: 0.75rem;
+        border-radius: 0.5rem;
+      }
+      .search-container button {
+        background: var(--gold);
+        color: var(--base);
+        font-weight: bold;
+        padding: 0.75rem 1.5rem;
+        border-radius: 0.5rem;
+        transition: all 0.3s ease;
+      }
+      .search-container button:hover {
+        background: var(--love);
+      }
+      .paper {
+        background: var(--overlay);
+        color: var(--text);
+        border-left: 5px solid var(--iris);
+        padding: 1rem;
+        border-radius: 0.5rem;
+        transition: transform 0.3s ease;
+        margin-bottom: 1rem;
+      }
+      .paper:hover {
+        transform: scale(1.03);
+      }
+      h1 {
+        color: var(--rose);
+      }
+      .pattern-bg {
+        --s: 37px;
+        --c: #0000, var(--surface) 0.5deg 119.5deg, #0000 120deg;
+        --g1: conic-gradient(from 60deg at 56.25% calc(425% / 6), var(--c));
+        --g2: conic-gradient(from 180deg at 43.75% calc(425% / 6), var(--c));
+        --g3: conic-gradient(from -60deg at 50% calc(175% / 12), var(--c));
+        background: var(--g1), var(--g1) var(--s) calc(1.73 * var(--s)),
+          var(--g2), var(--g2) var(--s) calc(1.73 * var(--s)),
+          var(--g3) var(--s) 0, var(--g3) 0 calc(1.73 * var(--s)) var(--base);
+        background-size: calc(2 * var(--s)) calc(3.46 * var(--s));
+      p{
+      color: #b3b3b3;
+      }
+      strong{
+      color: #ffffff;
+      }
+    </style>
+  </head>
+  <body class="pattern-bg">
+    <div class="container" id="result-container">
+      <h1 class="text-3xl font-bold mb-6 text-center">
+        IEEE Paper Recommender
+      </h1>
+      <div id="recommendations" class="mt-6"></div>
+    </div>
+    <div class="search-container">
+      <input
+        type="text"
+        id="search_input"
+        placeholder="Enter a keyword or paper title"
+        onkeypress="checkKeyPress()"
+        autofocus
+      />
+      <button type="button" onclick="getRecommendations()">Search</button>
+    </div>
+
+    <script>
+      function checkKeyPress() {
+        if (event.keyCode === 13) {
+          getRecommendations();
+        }
+      }
+      function getRecommendations() {
+        const keyword = document.getElementById("search_input").value;
+        const resultContainer = document.getElementById("result-container");
+        resultContainer.classList.add("expanded");
+
+        fetch("/recommend", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+          body: `keyword=${encodeURIComponent(keyword)}`,
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            const recommendationsDiv =
+              document.getElementById("recommendations");
+            recommendationsDiv.innerHTML =
+              '<h2 class="text-xl font-semibold mb-4">Recommended Papers:</h2>';
+            data.forEach((paper) => {
+              const paperDiv = document.createElement("div");
+              paperDiv.className = "paper";
+              paperDiv.innerHTML = `
+                        <h3><a href="${paper.url}" target="_blank" style="color: var(--foam); font-weight: bold;">${paper.title}</a></h3>
+                        <p><strong>Abstract:</strong> ${paper.abstract}</p>
+                        <p><strong>Authors:</strong> ${paper.authors}</p>
+                        <p><strong>Keyword:</strong> ${paper.keyword}</p>
+                    `;
+              recommendationsDiv.appendChild(paperDiv);
+            });
+          })
+          .catch((error) => console.error("Error:", error));
+      }
+    </script>
+  </body>
 </html>

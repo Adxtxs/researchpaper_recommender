@@ -49,6 +49,28 @@ To overcome the limitations of individual recommendation techniques, this system
    - Computes similarity scores using TF-IDF & Cosine Similarity, KNN, and (planned) Word2Vec.
    - Sorts papers by similarity and selects the top N most relevant recommendations. (top 10)
 
+## Setting up the Virtual Environment
+
+1. Open Command Prompt and navigate to your project directory:
+    ```sh
+    cd D:/Projects/researchpaper_recommender
+    ```
+
+2. Create a virtual environment:
+    ```sh
+    python -m venv venv
+    ```
+
+3. Activate the virtual environment:
+    ```sh
+    .\venv\Scripts\activate
+    ```
+
+4. Install the required packages:
+    ```sh
+    pip install -r requirements.txt
+    ```
+
 ## Future Improvements
 
 - Implementing Collaborative Filtering using user-item interaction data.

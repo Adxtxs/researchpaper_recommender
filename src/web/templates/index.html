@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IEEE Paper Recommender</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .search-container {
+            margin: 20px 0;
+        }
+        #search_input {
+            width: 70%;
+            padding: 10px;
+            font-size: 16px;
+        }
+        button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #2196F3;
+            color: white;
+            border: none;
+            cursor: pointer;
+        }
+        #recommendations {
+            margin-top: 20px;
+        }
+        .paper {
+            background-color: #f6f6f6;
+            padding: 15px;
+            margin-bottom: 15px;
+            border-radius: 5px;
+        }
+        .paper h3 {
+            margin-top: 0;
+        }
+        .paper a {
+            color: #2196F3;
+            text-decoration: none;
+        }
+        .paper a:hover {
+            text-decoration: underline;
+        }
+    </style>
+</head>
+<body>
+    <h1>IEEE Paper Recommender</h1>
+    <div class="search-container">
+        <input type="text" id="search_input" placeholder="Enter a keyword or paper title" autofocus>
+        <button onclick="getRecommendations()">Search</button>
+    </div>
+    <div id="recommendations"></div>
+
+    <script>
+        function getRecommendations() {
+            const keyword = document.getElementById('search_input').value;
+
+            fetch('/recommend', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/x-www-form-urlencoded',
+                },
+                body: `keyword=${encodeURIComponent(keyword)}`
+            })
+                .then(response => response.json())
+                .then(data => {
+                    const recommendationsDiv = document.getElementById('recommendations');
+                    recommendationsDiv.innerHTML = '<h2>Recommended Papers:</h2>';
+                    data.forEach(paper => {
+                        const paperDiv = document.createElement('div');
+                        paperDiv.className = 'paper';
+                        paperDiv.innerHTML = `
+                            <h3><a href="${paper.url}" target="_blank">${paper.title}</a></h3>
+                            <p><strong>Abstract:</strong> ${paper.abstract}</p>
+                            <p><strong>Authors:</strong> ${paper.authors}</p>
+                            <p><strong>Keyword:</strong> ${paper.keyword}</p>
+                        `;
+                        recommendationsDiv.appendChild(paperDiv);
+                    });
+                })
+                .catch(error => console.error('Error:', error));
+        }
+    </script>
+</body>
+</html>

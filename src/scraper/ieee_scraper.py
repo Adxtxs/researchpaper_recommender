@@ -48,13 +48,17 @@ def get_ieee_articles(search_terms, num_pages):
                 response = session.post(base_url, json=payload, headers=headers)
                 response.raise_for_status()
                 data = response.json()
+
+                if "records" not in data or not data["records"]:
+                    print(f"No records found on page {page} for '{search_term}'")
+                    continue
                 
                 for record in data["records"]:
-                    article_title = record["articleTitle"]
-                    article_url = f"https://ieeexplore.ieee.org{record['documentLink']}"
-                    abstract = record.get("abstract", "")
+                    article_title = record.get("articleTitle", "No title available")
+                    article_url = f"https://ieeexplore.ieee.org{record.get('documentLink', '#')}"
+                    abstract = record.get("abstract", "No abstract available")
                     authors = ", ".join([author["preferredName"] for author in record.get("authors", [])])
-                    
+
                     all_articles.append({
                         "keyword": search_term,
                         "title": article_title,
@@ -92,9 +96,15 @@ if __name__ == "__main__":
         "machine learning", "artificial intelligence", "deep learning", "neural networks", "data mining",
         "computer vision", "natural language processing", "robotics", "internet of things", "cybersecurity",
         "big data", "cloud computing", "quantum computing", "blockchain", "augmented reality",
-        "virtual reality", "5G", "edge computing", "bioinformatics", "computer graphics"
+        "virtual reality", "5G", "edge computing", "bioinformatics", "computer graphics",
+        "autonomous systems", "rweinforcement learning", "computational biology", "federated learning",
+        "swarm intelligence", "genetic algorithms", "digital twins", "wearable technology",
+        "smart cities", "self-driving cars", "speech recognition", "human-computer interaction",
+        "recommender systems", "semantic web", "AI ethics", "medical imaging", "sensor networks",
+        "multimodal learning", "AI in healthcare", "privacy-preserving AI", "software engineering"
     ]
-    num_pages = 20
+    
+    num_pages = 50
     article_data = get_ieee_articles(search_terms, num_pages)
 
     csv_filename = "ieee_articles.csv"

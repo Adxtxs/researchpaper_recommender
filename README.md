@@ -70,6 +70,18 @@ To overcome the limitations of individual recommendation techniques, this system
     ```sh
     pip install -r requirements.txt
     ```
+5. Ensure you have a database:
+   ```sh
+   python csv_to_sqlite.py
+   ```
+6. Run the Flask application:
+   ```sh
+   python app.py
+   ```
+7. Open your browser and go to:
+   ```sh
+   http://127.0.0.1:5000
+   ```
 
 ## Future Improvements
 

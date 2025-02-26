@@ -109,6 +109,7 @@
         --pine: #31748f;
         --foam: #9ccfd8;
         --iris: #c4a7e7;
+        --iris-bold: #7620e0;
       }
       body {
         background: var(--base);
@@ -130,15 +131,17 @@
         padding: 2rem;
         box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.3);
         transition: all 0.5s ease;
+        padding-bottom: 20px;
       }
       .container.expanded {
         width: 100%;
         padding: 2.5rem;
+        padding-bottom: 200px;
       }
       .search-container {
         position: fixed;
         bottom: 1rem;
-        width: 100%;
+        width: 40%;
         max-width: 800px;
         display: flex;
         justify-content: center;
@@ -179,6 +182,8 @@
       }
       .paper:hover {
         transform: scale(1.03);
+        border-left: 5px solid var(--iris-bold);
+        transition: all 0.3s ease;
       }
       h1 {
         color: var(--rose);
@@ -199,6 +204,27 @@
       strong{
       color: #ffffff;
       }
+      .pagination {
+        display: flex;
+        justify-content: center;
+        margin-top: 1rem;
+      }
+      .pagination button {
+        background: var(--foam);
+        color: var(--base);
+        margin: 0 0.5rem;
+        padding: 0.5rem 1rem;
+        border-radius: 0.5rem;
+        font-weight: bold;
+        transition: all 0.3s ease;
+      }
+      .pagination button:hover {
+        background: var(--iris);
+      }
+      .space{
+        height: 1000px;
+        background-color: wheat;
+      }
     </style>
   </head>
   <body class="pattern-bg">
@@ -208,6 +234,7 @@
       </h1>
       <div id="recommendations" class="mt-6"></div>
     </div>
+    <div class="pagination pb-28" id="pagination"></div>
     <div class="search-container">
       <input
         type="text"
@@ -220,12 +247,19 @@
     </div>
 
     <script>
+      let currentPage = 1;
+      let totalPages = 1;
+
       function checkKeyPress() {
         if (event.keyCode === 13) {
           getRecommendations();
         }
       }
-      function getRecommendations() {
+
+      /*
+
+      function getRecommendations(page = 1) {
+        currentPage = page;
         const keyword = document.getElementById("search_input").value;
         const resultContainer = document.getElementById("result-container");
         resultContainer.classList.add("expanded");
@@ -239,10 +273,12 @@
         })
           .then((response) => response.json())
           .then((data) => {
+            /*
             const recommendationsDiv =
               document.getElementById("recommendations");
             recommendationsDiv.innerHTML =
               '<h2 class="text-xl font-semibold mb-4">Recommended Papers:</h2>';
+            console.log(data);
             data.forEach((paper) => {
               const paperDiv = document.createElement("div");
               paperDiv.className = "paper";
@@ -250,10 +286,93 @@
                         <h3><a href="${paper.url}" target="_blank" style="color: var(--foam); font-weight: bold;">${paper.title}</a></h3>
                         <p><strong>Abstract:</strong> ${paper.abstract}</p>
                         <p><strong>Authors:</strong> ${paper.authors}</p>
-                        <p><strong>Keyword:</strong> ${paper.keyword}</p>
+                        <p><strong>Keyword:</strong> ${keyword}</p>
                     `;
               recommendationsDiv.appendChild(paperDiv);
             });
+          })
+          .catch((error) => console.error("Error:", error));
+          
+
+            totalPages = data.total_pages;
+            console.log(data);
+
+            const recommendationsDiv =
+              document.getElementById("recommendations");
+            const paginationDiv = document.getElementById("pagination");
+            recommendationsDiv.innerHTML =
+              '<h2 class="text-xl font-semibold mb-4">Recommended Papers:</h2>';
+
+            data.recommendations.forEach((paper) => {
+              const paperDiv = document.createElement("div");
+              paperDiv.className = "paper";
+              paperDiv.innerHTML = `
+              <h3><a href="${paper.url}" target="_blank" style="color: var(--foam); font-weight: bold;">${paper.title}</a></h3>
+              <p><strong>Abstract:</strong> ${paper.abstract}</p>
+              <p><strong>Authors:</strong> ${paper.authors}</p>
+            `;
+              recommendationsDiv.appendChild(paperDiv);
+            });
+
+            paginationDiv.innerHTML = "";
+            if (currentPage > 1) {
+              paginationDiv.innerHTML += `<button onclick="getRecommendations(${
+                currentPage - 1
+              })">Previous</button>`;
+            }
+            paginationDiv.innerHTML += `<span> Page ${currentPage} of ${totalPages} </span>`;
+            if (currentPage < totalPages) {
+              paginationDiv.innerHTML += `<button onclick="getRecommendations(${
+                currentPage + 1
+              })">Next</button>`;
+            }
+          })
+          .catch((error) => console.error("Error:", error));
+      }
+
+      */
+      function getRecommendations(page = 1) {
+        const keyword = document.getElementById("search_input").value;
+        currentPage = page;
+
+        fetch(`/recommend`, {
+          method: "POST",
+          headers: { "Content-Type": "application/x-www-form-urlencoded" },
+          body: `keyword=${encodeURIComponent(keyword)}&page=${page}`,
+        })
+          .then((response) => response.json())
+          .then((data) => {
+            totalPages = data.total_pages;
+            const recommendationsDiv =
+              document.getElementById("recommendations");
+            const paginationDiv = document.getElementById("pagination");
+            recommendationsDiv.innerHTML =
+              '<h2 class="text-xl font-semibold mb-4">Recommended Papers:</h2>';
+
+            data.recommendations.forEach((paper) => {
+              const paperDiv = document.createElement("div");
+              paperDiv.className = "paper";
+              paperDiv.innerHTML = `
+                <h3><a href="${paper.url}" target="_blank" style="color: var(--foam); font-weight: bold;">${paper.title}</a></h3>
+                <p><strong>Abstract:</strong> ${paper.abstract}</p>
+                <p><strong>Authors:</strong> ${paper.authors}</p>
+                <p><strong>Keyword:</strong> ${keyword}</p>
+              `;
+              recommendationsDiv.appendChild(paperDiv);
+            });
+
+            paginationDiv.innerHTML = "";
+            if (currentPage > 1) {
+              paginationDiv.innerHTML += `<button onclick="getRecommendations(${
+                currentPage - 1
+              })">Previous</button>`;
+            }
+            paginationDiv.innerHTML += `<span> Page ${currentPage} of ${totalPages} </span>`;
+            if (currentPage < totalPages) {
+              paginationDiv.innerHTML += `<button onclick="getRecommendations(${
+                currentPage + 1
+              })">Next</button>`;
+            }
           })
           .catch((error) => console.error("Error:", error));
       }
